@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import { Cast, Nominal, Type } from '../lib'
 
-const Integer = Nominal('integer', z.number())
-const String = Nominal('string', z.string())
+const Integer = Nominal('integer', z.number(), z.number(), (value) => value)
+const String = Nominal('string', z.string(), z.string(), (value) => value)
 
 class Float implements Cast<typeof Integer> {
     constructor(private value: number) {}

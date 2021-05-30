@@ -6,5 +6,7 @@ export interface CreateNominalAttrs<
     TIn = TOut
 > {
     name: TName
-    schema: z.ZodSchema<TOut, any, TIn>
+    input: z.ZodSchema<TIn>
+    output: z.ZodSchema<TOut>
+    constructorFn: (value: TIn) => TOut
 }

@@ -6,6 +6,8 @@ export function buildNominal<TName extends string, TOut, TIn = TOut>(
 ): NominalType<TName, TOut, TIn> {
     return {
         typeName: attrs.name,
-        schema: attrs.schema,
+        input: attrs.input,
+        output: attrs.output,
+        constructorFn: attrs.constructorFn,
     }
 }

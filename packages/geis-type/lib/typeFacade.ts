@@ -13,26 +13,35 @@ import { fromConstraints } from './schemas/schemaFactory'
  * Returns a new nominal type constructor
  * @returns
  */
-export function Nominal<TName extends string, TOut, TIn = TOut>(
+export function Nominal<
+    TName extends string,
+    TConstruct = any,
+    TOut extends TConstruct = any,
+    TIn = TOut
+>(
     name: TName,
-    rawschema: z.ZodSchema<TOut, any, TIn>
-): TypeConstructor<TName, TOut, TIn> {
-    const nominalType = buildNominal({ name, schema: rawschema })
-    function handler(value: TIn | Cast<TypeConstructor<TName, TOut, TIn>>) {
+    input: z.ZodSchema<TIn>,
+    output: z.ZodSchema<TOut>,
+    constructorFn: (value: TIn) => TConstruct
+): TypeConstructor<TName, TConstruct, TOut, TIn> {
+    const nominalType = buildNominal({ name, input, output, constructorFn })
+    function handler(value: TIn): TOut | Error {
         // @ts-expect-error
         const handler = getCastFn(nominalType, value)
         // @ts-expect-error
-        const casted = handler ? handler.call(value) : value
-        const result = nominalType.schema.safeParse(casted)
+        const casted = handler ? handler.call(value) : constructorFn(value)
+        const result = nominalType.output.safeParse(casted)
         if (result.success) {
-            return result.data
+            return result.data as TOut
         }
         return result.error
     }
     // @ts-expect-error
     return Object.assign(handler, {
         typeName: nominalType.typeName,
-        schema: nominalType.schema,
+        input: nominalType.input,
+        output: nominalType.output,
+        constructorFn: nominalType.constructorFn,
     })
 }
 
@@ -42,32 +51,34 @@ export function Nominal<TName extends string, TOut, TIn = TOut>(
  * @param constraints
  * @returns
  */
+// export function Type<
+//     TName extends string,
+//     TOut,
+//     TIn = TOut,
+//     TConstraint extends Constraint<TIn> | unknown = unknown
+// >(
+//     nominal: TypeConstructor<TName, TOut, TIn>,
+//     defaultExpr: TIn,
+//     ...constraints: TConstraint[]
+// ): TypeConstructorDefault<TName, TOut, TIn, TConstraint>
 export function Type<
     TName extends string,
-    TOut,
+    TConstruct = any,
+    TOut extends TConstruct = TConstruct,
     TIn = TOut,
     TConstraint extends Constraint<TIn> | unknown = unknown
 >(
-    nominal: TypeConstructor<TName, TOut, TIn>,
-    defaultExpr: TIn,
+    nominal: TypeConstructor<TName, TConstruct, TOut, TIn>,
     ...constraints: TConstraint[]
-): TypeConstructorDefault<TName, TOut, TIn, TConstraint>
+): TypeConstructor<TName, TConstruct, TOut, TIn, TConstraint>
 export function Type<
     TName extends string,
-    TOut,
+    TConstruct = any,
+    TOut extends TConstruct = TConstruct,
     TIn = TOut,
     TConstraint extends Constraint<TIn> | unknown = unknown
 >(
-    nominal: TypeConstructor<TName, TOut, TIn>,
-    ...constraints: TConstraint[]
-): TypeConstructor<TName, TOut, TIn, TConstraint>
-export function Type<
-    TName extends string,
-    TOut,
-    TIn = TOut,
-    TConstraint extends Constraint<TIn> | unknown = unknown
->(
-    nominal: TypeConstructor<TName, TOut, TIn>,
+    nominal: TypeConstructor<TName, TConstruct, TOut, TIn>,
     defaultExpr?: TIn | TConstraint,
     ...constraints: TConstraint[]
 ) {
@@ -79,16 +90,26 @@ export function Type<
     const resolvedConstraints = isConstraint(defaultExpr)
         ? [defaultExpr, ...constraints]
         : constraints
-    // @ts-expect-error
-    const schema = fromConstraints(nominal.schema, resolvedConstraints)
-    const type = Nominal(nominal.typeName, schema)
+    const constrainedOutput = fromConstraints(
+        nominal.output,
+        // @ts-expect-error
+        resolvedConstraints
+    )
+    const type = Nominal(
+        nominal.typeName,
+        nominal.input,
+        constrainedOutput,
+        nominal.constructorFn
+    )
     if (defaultExpr && !isConstraint(defaultExpr)) {
         const wrapped = (value: TIn | null) => {
             return type(value ?? defaultExpr)
         }
         return Object.assign(wrapped, {
             typeName: type.typeName,
-            schema: type.schema,
+            input: type.input,
+            output: constrainedOutput,
+            constructorFn: nominal.constructorFn,
         })
     }
     return type
