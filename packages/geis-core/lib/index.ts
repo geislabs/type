@@ -1,1 +1,5 @@
+export { Date } from './date/dateFacade'
 export { String } from './string/stringFacade'
+export { Integer } from './integer/integerFacade'
+export { Float } from './float/floatFacade'
+export { Boolean } from './boolean/booleanFacade'

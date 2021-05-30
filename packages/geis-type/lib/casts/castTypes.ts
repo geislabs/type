@@ -14,3 +14,5 @@ export type Cast<T extends TypeConstructor> = {
             : never
         : never
 }
+
+export type Target<TIn, TVal> = TVal extends TIn ? TVal : never
