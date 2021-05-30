@@ -21,6 +21,7 @@ export function Nominal<TName extends string, TOut, TIn = TOut>(
     function handler(value: TIn | Cast<TypeConstructor<TName, TOut, TIn>>) {
         // @ts-expect-error
         const handler = getCastFn(nominalType, value)
+        // @ts-expect-error
         const casted = handler ? handler.call(value) : value
         const result = nominalType.schema.safeParse(casted)
         if (result.success) {
