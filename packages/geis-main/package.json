@@ -1,0 +1,41 @@
+{
+    "name": "@geislabs/types",
+    "version": "0.0.1",
+    "description": "> TODO: description",
+    "author": "mads hargreave <mads.hargreave@gmail.com>",
+    "homepage": "",
+    "repository": "git://github.com/geislabs/geis.git",
+    "license": "ISC",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "directories": {
+        "dist": "dist"
+    },
+    "files": [
+        "dist"
+    ],
+    "publishConfig": {
+        "registry": "http://registry.npmjs.org/",
+        "access": "public"
+    },
+    "scripts": {
+        "clean": "rimraf dist",
+        "build": "npm run clean && rollup --config rollup.config.js",
+        "watch": "npm run clean && rollup --config rollup.config.js --watch"
+    },
+    "dependencies": {
+        "@geislabs/geis-core": "^0.0.1",
+        "@geislabs/geis-type": "^0.0.1",
+        "@geislabs/geis-apply": "^0.0.1",
+        "@geislabs/geis-cast": "^0.0.1",
+        "autobind-decorator": "^2.4.0",
+        "cheerio": "^1.0.0-rc.9",
+        "fs-extra": "^10.0.0",
+        "node-fetch": "^2.6.1",
+        "zod": "^3.1.0"
+    },
+    "devDependencies": {
+        "esbuild": "^0.12.1",
+        "rimraf": "^3.0.2"
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "extends": "../../tsconfig.json",
+    "exclude": ["dist"],
+    "include": ["lib"],
+    "compilerOptions": {
+        "module": "esnext",
+        "outDir": "./dist",
+        "rootDir": "lib",
+        "declaration": true,
+        "emitDeclarationOnly": false
+    }
+}
