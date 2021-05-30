@@ -5,6 +5,6 @@ export type NamedConstraint<TKind extends string = string, TIn = unknown> = {
     fn: Constraint<TIn>
 }
 
-export type AnyConstraint<TName extends string = string, TIn = unknown> =
+export type AnyConstraint<TName extends string = any, TIn = any> =
     Constraint<TIn>
 // | NamedConstraint<TName, TIn>

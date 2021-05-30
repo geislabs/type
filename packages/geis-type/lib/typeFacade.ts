@@ -41,28 +41,44 @@ export function Nominal<TName extends string, TOut, TIn = TOut>(
  * @param constraints
  * @returns
  */
-export function Type<TName extends string, TOut, TIn = TOut>(
-    nominal: TypeConstructor<TName, TOut, TIn>,
-    ...constraints: AnyConstraint<string, TOut>[]
-): TypeConstructor<TName, TOut, TIn>
-export function Type<TName extends string, TOut, TIn = TOut>(
+export function Type<
+    TName extends string,
+    TOut,
+    TIn = TOut,
+    TConstraint extends Constraint<TIn> | unknown = unknown
+>(
     nominal: TypeConstructor<TName, TOut, TIn>,
     defaultExpr: TIn,
-    ...constraints: AnyConstraint<string, TOut>[]
-): TypeConstructorDefault<TName, TOut, TIn>
-export function Type<TName extends string, TOut, TIn = TOut>(
+    ...constraints: TConstraint[]
+): TypeConstructorDefault<TName, TOut, TIn, TConstraint>
+export function Type<
+    TName extends string,
+    TOut,
+    TIn = TOut,
+    TConstraint extends Constraint<TIn> | unknown = unknown
+>(
     nominal: TypeConstructor<TName, TOut, TIn>,
-    defaultExpr?: TIn | AnyConstraint<string, TOut>,
-    ...constraints: AnyConstraint<string, TOut>[]
+    ...constraints: TConstraint[]
+): TypeConstructor<TName, TOut, TIn, TConstraint>
+export function Type<
+    TName extends string,
+    TOut,
+    TIn = TOut,
+    TConstraint extends Constraint<TIn> | unknown = unknown
+>(
+    nominal: TypeConstructor<TName, TOut, TIn>,
+    defaultExpr?: TIn | TConstraint,
+    ...constraints: TConstraint[]
 ) {
     function isConstraint(
-        defaultExpr?: TIn | AnyConstraint<string, TOut>
-    ): defaultExpr is AnyConstraint<string, TOut> {
+        defaultExpr?: TIn | TConstraint
+    ): defaultExpr is TConstraint {
         return typeof defaultExpr === 'function'
     }
     const resolvedConstraints = isConstraint(defaultExpr)
         ? [defaultExpr, ...constraints]
         : constraints
+    // @ts-expect-error
     const schema = fromConstraints(nominal.schema, resolvedConstraints)
     const type = Nominal(nominal.typeName, schema)
     if (defaultExpr && !isConstraint(defaultExpr)) {
