@@ -1,5 +1,2 @@
-export * from './typeFacade'
-export * from './typeTypes'
-export * from './typeGuards'
-export { getName } from './typeUtils'
-export * from './apply'
+export { Nominal, Type } from './typeFacade'
+export * from './casts/castTypes'

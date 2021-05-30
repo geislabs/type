@@ -1,3 +1,1 @@
-export * from './coreFactory'
-export * from './coreTypes'
-export * from './validators'
+export { String } from './string/stringFacade'
